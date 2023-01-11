@@ -1,63 +1,65 @@
 pipeline {
-    agent any 
-    tools {
-        jdk 'java.home'
-        maven 'Maven-3.8.7'
-        dockerTool 'docker'
-        
+    environment{
+        dockerImage = ''
     }
-    stages {
-        stage('build && SonarQube analysis') {
-            steps {
-                withSonarQubeEnv('Sonar-Server') {
-                    // Optionally use a Maven environment you've configured already
-                    withMaven(maven:'Maven-3.8.7') {
-                        bat 'mvn clean package sonar:sonar'
-                    }
-                }
-            }
-        }
-        stage("Quality Gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
+    agent any
+    tools {
+        maven "Maven"
+        git "Git"
+        jdk "Jdk"
+	dockerTool "Docker"
+    }
 
+    stages {
+        stage('1.Code Build and Analysis of Code') {
+            steps {
+				echo '-----------------Building code-----------------------'
+                
+                
+                withSonarQubeEnv('sonarserver'){
+                    withMaven(maven:'Maven'){
+                        bat 'mvn clean package sonar:sonar'
+                        echo '---------------Code Build and analysis of code is successfull---------------------'
+                    }
+				}
+            }
+
+           
+    	}
+
+
+		stage('Quality Gate Check'){
+			steps{
+				timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
                     waitForQualityGate abortPipeline: true
                 }
-            }
-        }
-        stage ('Building Docker Image'){
-            steps {
-                script{
-                    echo '-----------------------docker iamge building started---------------------'
-                     bat 'docker build -t abhishekbhilare/devops-jarfile .'
-                }   
-            }
-        }
-        stage ('Docker Image->Docker Hub'){
-            steps {
+			}
+		}
+
+        stage('3.Building image') {
+            steps{
                 script {
-                    echo '---------------------entered in the docker to docker hub-------------------- '
-                    withCredentials([usernamePassword(credentialsId: 'f07f5cfa-9ff8-4c57-b198-32eb76dcd92c', passwordVariable: 'DOCKERHUBPWD', usernameVariable: 'DOCKERHUBUSERNAME')]) {
-                        bat 'docker login --username=%DOCKERHUBUSERNAME%  --password=%DOCKERHUBPWD% '
+                    echo '---------------------------Building Image----------------------------------'
+                    bat 'docker build . -t cloudbased-deployment'
+                    echo '---------------------------Image Successfully Build---------------------------------'
+		            bat 'docker images'
+                }
+            }
+        }
+
+        stage('4.Deploying image to ECR') {
+            steps{
+                script{
+                    echo '-----------------------------Deploying Image----------------------------------------'
+                    docker.withRegistry('https://795361990663.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-credentials') {
+                        bat 'docker push 795361990663.dkr.ecr.us-east-1.amazonaws.com/cloudbased-deployment:latest'
+                        echo '-------------------------Image Successfully pushed--------------------------------'
                     }
-                    echo "pushing docker image "
-                    bat 'docker push abhishekbhilare/devops-jarfile'
-                }
-                }
-            }
-      
-        stage ('Deployment') {
-            steps{
-                echo 'deployment'
-                emailext body: 'Project is in deployment stage and deployment is done by the devloper', subject: 'Regarding the devlpoment', to: 'abhishekbhilarea.b@gmail.com'
+                } 
             }
         }
-        stage ('Production') {
-            steps{
-                echo 'production'
-                bat 'docker pull abhishekbhilare/devops-jarfile:latest'
-                bat 'docker run -p 8000:8000 abhishekbhilare/devops-jarfile:latest'
-            }
-        }
-}
+	}
+
 }
