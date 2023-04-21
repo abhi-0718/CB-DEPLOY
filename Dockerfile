@@ -1,4 +1,4 @@
 FROM openjdk:8-jdk-alpine
 VOLUME /tmp
-ADD target/maven-hello-world-1.0-SNAPSHOT.jar app.jar
+ADD target/devops-jarfile.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
