@@ -98,7 +98,7 @@ pipeline {
                     echo '---------------- Deploying Image----------------------------------------'
                     docker.withRegistry('https://795361990663.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-credentials') {
                         sh 'docker push 795361990663.dkr.ecr.us-west-1.amazonaws.com/maven-hello-world:latest'
-                        echo '-------------------------Image Successfully pushed--------------------------------'
+                        echo '-------------------------Image Successfully pushed---------------------------------'
                     }
                 } 
             }
