@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maven-hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maven-hello-world
+  template:
+    metadata:
+      labels:
+        app: maven-hello-world
+    spec:
+      containers:
+      - name: maven-hello-world
+        image: 795361990663.dkr.ecr.us-west-1.amazonaws.com/maven-hello-world
+        ports:
+        - containerPort: 8080

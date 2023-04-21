@@ -1,4 +1,4 @@
-FROM openjdk:11.0.2
-EXPOSE 8080
-ADD target/devops-jarfile.jar devops-jarfile.jar
-ENTRYPOINT ["java","-jar","/devops-jarfile.jar"]
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+ADD target/maven-hello-world-1.0-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
