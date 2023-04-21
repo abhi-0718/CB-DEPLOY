@@ -89,7 +89,8 @@ pipeline {
                 echo "------------------BUILDING IMAGE USING DOCKERFILE ---"
                 sh 'docker build -t maven-hello-world .'
                 echo "------------------TAGGING THE IMAGE------------------"
-                sh 'docker tag maven-hello-world:latest 795361990663.dkr.ecr.us-west-1.amazonaws.com/maven-hello-world:latest'
+                sh 'docker tag maven-hello-world:latest 795361990663.dkr.ecr.us-east-1.amazonaws.com/maven-hello-world:latest'
+                // sh 'docker tag maven-hello-world:latest public.ecr.aws/w5g9n1i7/maven-hello-world:latest'
             }
         }
        stage('4.Push image to ECR') {
@@ -97,7 +98,8 @@ pipeline {
                 script{
                     echo '---------------- Deploying Image----------------------------------------'
                     docker.withRegistry('https://795361990663.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-credentials') {
-                        sh 'docker push 795361990663.dkr.ecr.us-west-1.amazonaws.com/maven-hello-world:latest'
+                        sh 'docker push 795361990663.dkr.ecr.us-east-1.amazonaws.com/maven-hello-world:latest'
+                        // sh 'docker push public.ecr.aws/w5g9n1i7/maven-hello-world:latest'
                         echo '-------------------------Image Successfully pushed---------------------------------'
                     }
                 } 
