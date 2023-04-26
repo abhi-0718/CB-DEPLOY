@@ -2,18 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: maven-hello-world
+  labels:
+    env: dev
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
+      env: dev
       app: maven-hello-world
   template:
     metadata:
       labels:
+        env: dev
         app: maven-hello-world
     spec:
       containers:
       - name: maven-hello-world
         image: 795361990663.dkr.ecr.us-east-1.amazonaws.com/maven-hello-world:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 80
