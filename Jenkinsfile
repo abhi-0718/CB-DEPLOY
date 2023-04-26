@@ -93,7 +93,7 @@ pipeline {
                 // sh 'docker tag maven-hello-world:latest public.ecr.aws/w5g9n1i7/maven-hello-world:latest'
             }
         }
-       stage('4.Push image to ECR') {
+       stage('Push image to ECR') {
             steps{
                 script{
                     echo '---------------- Deploying Image----------------------------------------'
@@ -103,6 +103,43 @@ pipeline {
                         echo '-------------------------Image Successfully pushed---------------------------------'
                     }
                 } 
+            }
+        }
+
+        // stage('Installing neccessory things for K8s Deployment on machine'){
+        //     steps{
+        //         script{
+        //             echo'----------------------Checking AWS CLI version-------------------'
+        //             sh'aws --version'
+
+        //             echo '---------------------Installing KubeCtl------------------'
+        //             sh 'curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.16.8/2020-04-16/bin/linux/amd64/kubectl'
+        //             sh 'chmod +x ./kubectl'
+        //             sh 'mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin'
+        //             sh 'kubectl version --short --client'
+                
+        //             echo'-----------------------Installing EksCtl------------------'
+        //             sh 'curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp'
+        //             sh 'sudo mv /tmp/eksctl /usr/bin'
+        //             sh 'eksctl version'
+        //         }
+        //     }
+        // }
+
+        // stage('Creating Cluster'){
+        //     steps{
+        //         script{
+        //             echo '----------------Creating 3 cluster in us-east-1 region with (cluster name=dev)--------------'
+        //             sh 'eksctl create cluster --name dev --region us-east-1 --nodegroup-name standard-workers --node-type t3.medium --nodes 3 --nodes-min 1 --nodes-max 4 --managed'
+        //         }
+        //     }
+        // }
+
+
+        stage('Deploy'){
+            steps{
+                sh 'kubectl apply -f hello_world-svc.yml'
+                sh 'kubectl get svc'
             }
         }
     }
